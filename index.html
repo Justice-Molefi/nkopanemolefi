@@ -21,11 +21,10 @@
       height: 100%;
       background: var(--bg);
       color: var(--text);
-        font-family: 'DM Mono', system-ui, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace;
+      font-family: 'DM Mono', system-ui, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace;
       overflow: hidden;
     }
 
-    /* on touch devices, show default cursor */
     @media (pointer: fine) {
       body { cursor: none; }
     }
@@ -40,16 +39,12 @@
       z-index: 1;
     }
 
-    /* custom cursor — hidden on touch */
-    .cursor, .cursor-ring {
-      display: none;
-    }
+    .cursor, .cursor-ring { display: none; }
     @media (pointer: fine) {
       .cursor {
         display: block;
         position: fixed;
-        width: 5px;
-        height: 5px;
+        width: 5px; height: 5px;
         background: var(--accent);
         border-radius: 50%;
         pointer-events: none;
@@ -60,8 +55,7 @@
       .cursor-ring {
         display: block;
         position: fixed;
-        width: 26px;
-        height: 26px;
+        width: 26px; height: 26px;
         border: 1px solid rgba(232,224,200,0.25);
         border-radius: 50%;
         pointer-events: none;
@@ -72,11 +66,11 @@
 
     .corner {
       position: fixed;
-      width: 28px;
-      height: 28px;
+      width: 28px; height: 28px;
       z-index: 10;
       opacity: 0;
       animation: fadeIn 1s ease forwards;
+      transition: opacity 0.4s;
     }
     .corner--tl { top: 20px; left: 20px; border-top: 1px solid var(--muted); border-left: 1px solid var(--muted); }
     .corner--tr { top: 20px; right: 20px; border-top: 1px solid var(--muted); border-right: 1px solid var(--muted); }
@@ -91,6 +85,7 @@
       .corner--tr, .corner--br { right: 24px; }
     }
 
+    /* ── HOME ── */
     .stage {
       position: fixed;
       inset: 0;
@@ -119,15 +114,8 @@
       animation: slideUp 1s 0.2s cubic-bezier(0.16,1,0.3,1) forwards;
     }
 
-    .headline .emoji {
-      font-style: normal;
-      display: inline-block;
-      animation: emojiFloat 4s 2s ease-in-out infinite;
-    }
-
     .divider {
-      width: 32px;
-      height: 1px;
+      width: 32px; height: 1px;
       background: var(--muted);
       margin: 0 auto clamp(20px, 3vw, 28px);
       opacity: 0;
@@ -155,6 +143,33 @@
     .log span.val   { color: var(--text); }
     .log span.dim   { color: var(--muted); font-style: italic; }
 
+    /* ── GAME BUTTON ── */
+    .game-trigger {
+      display: inline-block;
+      margin-top: clamp(32px, 5vw, 48px);
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 4vw, 1.8rem);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      background: none;
+      border: none;
+      border: 1px solid var(--muted);
+      cursor: pointer;
+      padding: 8px 24px;
+      opacity: 0;
+      animation: slideUp 0.9s 1.3s cubic-bezier(0.16,1,0.3,1) forwards;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .game-trigger:hover {
+      border-color: var(--accent);
+    }
+    @media (pointer: fine) {
+      .game-trigger { cursor: none; }
+    }
+
+    /* ── BOTTOM BAR ── */
     .bottom-bar {
       position: fixed;
       bottom: 24px;
@@ -168,16 +183,158 @@
       opacity: 0;
       animation: fadeIn 1.6s 1.4s ease forwards;
       white-space: nowrap;
+      pointer-events: none;
     }
-
-    /* on touch: swap coords for a static message */
     .bottom-bar--touch { display: none; }
     @media (pointer: coarse) {
-      .bottom-bar--mouse  { display: none; }
-      .bottom-bar--touch  { display: block; }
+      .bottom-bar--mouse { display: none; }
+      .bottom-bar--touch { display: block; }
     }
 
-    @keyframes fadeIn { to { opacity: 1; } }
+    /* ── GAME OVERLAY ── */
+    #game-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #game-overlay.active { display: flex; }
+
+    #game-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* HUD */
+    #game-hud {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 32px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--mid);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #game-hud span.val { color: var(--text); }
+
+    /* quit button */
+    #game-quit-btn {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      font-size: 18px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      line-height: 1;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    #game-quit-btn:hover { color: var(--accent); }
+    @media (pointer: fine) { #game-quit-btn { cursor: none; } }
+
+    /* ── COUNTDOWN ── */
+    #countdown {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      pointer-events: none;
+    }
+    #countdown.active { display: flex; }
+    #countdown-text p {
+      font-size: clamp(9px, 2.2vw, 11px);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--mid);
+      line-height: 2.2;
+      text-align: center;
+    }
+    #countdown-num {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(5rem, 20vw, 12rem);
+      color: var(--accent);
+      line-height: 1;
+      opacity: 0;
+      transform: scale(1.4);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    #countdown-num.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ── GAME OVER SCREEN ── */
+    .game-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      text-align: center;
+      padding: 24px;
+      pointer-events: none;
+    }
+    .game-screen.hidden { display: none; }
+
+    .game-screen h2 {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(1.6rem, 7vw, 3.2rem);
+      color: var(--accent);
+      line-height: 1.18;
+      margin-bottom: 12px;
+    }
+
+    .game-screen p {
+      font-size: clamp(9px, 2.2vw, 11px);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--mid);
+      margin-bottom: 36px;
+      line-height: 2;
+    }
+    .game-screen p span { color: var(--text); }
+
+    .game-screen .btn-row {
+      display: flex;
+      gap: 16px;
+      pointer-events: all;
+    }
+
+    .game-screen button {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 3.5vw, 1.4rem);
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--muted);
+      cursor: pointer;
+      padding: 8px 28px;
+      transition: border-color 0.2s;
+    }
+    .game-screen button:hover { border-color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn  { to { opacity: 1; } }
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -186,13 +343,10 @@
       from { opacity: 0; transform: scaleX(0); }
       to   { opacity: 1; transform: scaleX(1); }
     }
-    @keyframes emojiFloat {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-6px); }
-    }
   </style>
 </head>
 <body>
+
   <div class="cursor" id="cursor"></div>
   <div class="cursor-ring" id="ring"></div>
 
@@ -201,10 +355,11 @@
   <div class="corner corner--bl"></div>
   <div class="corner corner--br"></div>
 
-  <div class="stage">
+  <!-- HOME -->
+  <div class="stage" id="home">
     <div class="card">
       <h1 class="headline">
-        Hi — I'm sorry<br>there's nothing here
+        Hi — there's<br>nothing here
       </h1>
       <div class="divider"></div>
       <div class="log">
@@ -213,32 +368,327 @@
         <div class="log-row"><span class="label">plans</span><span class="val">several, all vague</span></div>
         <div class="log-row"><span class="label">eta</span><span class="dim">don't ask</span></div>
       </div>
+      <button class="game-trigger" id="open-game">wanna play a game?</button>
     </div>
   </div>
 
   <div class="bottom-bar bottom-bar--mouse" id="coords">x: — &nbsp;·&nbsp; y: —</div>
   <div class="bottom-bar bottom-bar--touch">you found me · congrats ig</div>
 
+  <!-- GAME OVERLAY -->
+  <div id="game-overlay">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="game-hud">
+      <span>score &nbsp;<span class="val" id="hud-score">0</span></span>
+      <span id="hud-lives-wrap">lives &nbsp;<span class="val" id="hud-lives">● ● ●</span></span>
+      <span>best &nbsp;<span class="val" id="hud-best">0</span></span>
+    </div>
+
+    <!-- Countdown -->
+    <div id="countdown">
+      <div id="countdown-text">
+        <p>tap the dot<br>it won't make things better<br>but here we are</p>
+      </div>
+      <span id="countdown-num"></span>
+    </div>
+
+    <!-- Game over screen -->
+    <div class="game-screen hidden" id="screen-over">
+      <h2 id="over-title">not bad</h2>
+      <p>
+        you caught <span id="over-score">0</span><br>
+        lives left: <span id="over-lives">0</span><br>
+        best ever: <span id="over-best">0</span>
+      </p>
+      <div class="btn-row">
+        <button id="btn-retry">again</button>
+        <button id="btn-quit">leave</button>
+      </div>
+    </div>
+
+    <button id="game-quit-btn" aria-label="Quit game">✕</button>
+  </div>
+
   <script>
-    const cursor = document.getElementById('cursor');
-    const ring   = document.getElementById('ring');
-    const coords = document.getElementById('coords');
+    /* ── CURSOR ── */
+    const cursorEl = document.getElementById('cursor');
+    const ringEl   = document.getElementById('ring');
+    const coordsEl = document.getElementById('coords');
     let mx = 0, my = 0, rx = 0, ry = 0;
 
     document.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-      coords.textContent = `x: ${mx}  ·  y: ${my}`;
+      cursorEl.style.left = mx + 'px';
+      cursorEl.style.top  = my + 'px';
+      if (coordsEl) coordsEl.textContent = `x: ${mx}  ·  y: ${my}`;
     });
 
     (function animateRing() {
       rx += (mx - rx) * 0.1;
       ry += (my - ry) * 0.1;
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
+      ringEl.style.left = rx + 'px';
+      ringEl.style.top  = ry + 'px';
       requestAnimationFrame(animateRing);
     })();
+
+    /* ── GAME ── */
+    const overlay      = document.getElementById('game-overlay');
+    const canvas       = document.getElementById('game-canvas');
+    const ctx          = canvas.getContext('2d');
+    const hudScore     = document.getElementById('hud-score');
+    const hudBest      = document.getElementById('hud-best');
+    const countdownEl  = document.getElementById('countdown');
+    const countdownNum = document.getElementById('countdown-num');
+    const screenOver   = document.getElementById('screen-over');
+    const overTitle    = document.getElementById('over-title');
+    const overScore    = document.getElementById('over-score');
+    const overBest     = document.getElementById('over-best');
+
+    let W, H, score, lives, best = 0, dot, particles, animId, phase;
+    // phase: 'countdown' | 'playing' | 'over'
+
+    const MAX_LIVES = 3;
+
+    const hudLives = document.getElementById('hud-lives');
+
+    const ACCENT  = '#e8e0c8';
+    const MUTED   = '#333330';
+    const MID     = '#555550';
+
+    /* taunt messages based on score */
+    const titles = [
+      [0,  'seriously?'],
+      [3,  'okay then.'],
+      [8,  'not bad'],
+      [15, 'getting warm'],
+      [25, 'alright, alright'],
+      [40, 'respect.'],
+    ];
+    function getTitle(s) {
+      let t = titles[0][1];
+      for (const [n, label] of titles) { if (s >= n) t = label; }
+      return t;
+    }
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    /* ── DOT ── */
+    function spawnDot() {
+      const margin = 60;
+      const r = 14 + Math.random() * 8;
+      return {
+        x: margin + Math.random() * (W - margin * 2),
+        y: margin + Math.random() * (H - margin * 2),
+        r,
+        pulse: Math.random() * Math.PI * 2,
+        // velocity increases with score
+        vx: (Math.random() < 0.5 ? 1 : -1) * (1.2 + score * 0.18 + Math.random()),
+        vy: (Math.random() < 0.5 ? 1 : -1) * (1.2 + score * 0.18 + Math.random()),
+        alpha: 0,
+      };
+    }
+
+    /* ── POP PARTICLES ── */
+    function spawnParticles(x, y) {
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI * 2 / 10) * i + Math.random() * 0.4;
+        const speed = 2 + Math.random() * 3;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          r: 2 + Math.random() * 2,
+        });
+      }
+    }
+
+    function renderLives() {
+      const MAX_DOTS = 5;
+      if (lives <= 0) { hudLives.textContent = '○'; return; }
+      const dots = '● '.repeat(Math.min(lives, MAX_DOTS)).trim();
+      hudLives.textContent = lives > MAX_DOTS ? dots + ' +' + (lives - MAX_DOTS) : dots;
+    }
+
+    /* ── HIT TEST ── */
+    function hitDot(px, py) {
+      if (!dot) return false;
+      const dx = px - dot.x, dy = py - dot.y;
+      return Math.sqrt(dx * dx + dy * dy) < dot.r + 14;
+    }
+
+    function onHit(px, py) {
+      if (phase !== 'playing') return;
+      if (hitDot(px, py)) {
+        // catch — gain a life (no cap) + speed up
+        spawnParticles(dot.x, dot.y);
+        score++;
+        lives++;
+        hudScore.textContent = score;
+        renderLives();
+        dot = spawnDot();
+      } else {
+        // miss — lose a life
+        lives--;
+        renderLives();
+        // flash the canvas red briefly
+        flashMiss();
+        if (lives <= 0) endGame();
+      }
+    }
+
+    let missFlash = 0;
+    function flashMiss() { missFlash = 12; }
+
+    /* ── DRAW ── */
+    function draw(ts) {
+      ctx.clearRect(0, 0, W, H);
+
+      // miss flash
+      if (missFlash > 0) {
+        ctx.fillStyle = `rgba(180,40,40,${missFlash / 80})`;
+        ctx.fillRect(0, 0, W, H);
+        missFlash--;
+      }
+
+      if (!dot) { animId = requestAnimationFrame(draw); return; }
+
+      // move dot
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+      if (dot.x - dot.r < 0 || dot.x + dot.r > W) dot.vx *= -1;
+      if (dot.y - dot.r < 0 || dot.y + dot.r > H) dot.vy *= -1;
+
+      // fade in
+      if (dot.alpha < 1) dot.alpha = Math.min(1, dot.alpha + 0.06);
+
+      // pulse
+      dot.pulse += 0.04;
+      const pr = dot.r + Math.sin(dot.pulse) * 3;
+
+      // outer ring
+      ctx.beginPath();
+      ctx.arc(dot.x, dot.y, pr + 10, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(232,224,200,${0.06 * dot.alpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // dot
+      ctx.beginPath();
+      ctx.arc(dot.x, dot.y, pr, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,224,200,${dot.alpha})`;
+      ctx.fill();
+
+      // particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.9; p.vy *= 0.9;
+        p.life -= 0.045;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,224,200,${p.life * 0.7})`;
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    /* ── PHASES ── */
+    function openOverlay() {
+      overlay.classList.add('active');
+      screenOver.classList.add('hidden');
+      phase = 'countdown';
+      resize();
+      particles = [];
+      dot = null;
+      cancelAnimationFrame(animId);
+      animId = requestAnimationFrame(draw);
+      startCountdown();
+    }
+
+    function startCountdown() {
+      countdownEl.classList.add('active');
+      const steps = ['3', '2', '1'];
+      let i = 0;
+      function tick() {
+        countdownNum.classList.remove('show');
+        setTimeout(() => {
+          if (i >= steps.length) {
+            countdownEl.classList.remove('active');
+            beginGame();
+            return;
+          }
+          countdownNum.textContent = steps[i++];
+          countdownNum.classList.add('show');
+          setTimeout(tick, 800);
+        }, 150);
+      }
+      tick();
+    }
+
+    function beginGame() {
+      score = 0;
+      lives = MAX_LIVES;
+      hudScore.textContent = 0;
+      hudBest.textContent  = best;
+      missFlash = 0;
+      renderLives();
+      particles = [];
+      dot = spawnDot();
+      phase = 'playing';
+    }
+
+    function endGame() {
+      phase = 'over';
+      if (score > best) best = score;
+      overTitle.textContent = getTitle(score);
+      document.getElementById('over-score').textContent = score;
+      document.getElementById('over-lives').textContent = '0';
+      overBest.textContent  = best;
+      hudBest.textContent   = best;
+      dot = null;
+      screenOver.classList.remove('hidden');
+    }
+
+    function closeGame() {
+      cancelAnimationFrame(animId);
+      overlay.classList.remove('active');
+      countdownEl.classList.remove('active');
+      screenOver.classList.add('hidden');
+    }
+
+    /* ── EVENTS ── */
+    document.getElementById('open-game').addEventListener('click', openOverlay);
+    document.getElementById('btn-retry').addEventListener('click', () => {
+      screenOver.classList.add('hidden');
+      phase = 'countdown';
+      dot = null;
+      particles = [];
+      startCountdown();
+    });
+    document.getElementById('btn-quit').addEventListener('click', closeGame);
+
+    canvas.addEventListener('click', e => {
+      onHit(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      onHit(t.clientX, t.clientY);
+    }, { passive: false });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) closeGame();
+    });
+
+    window.addEventListener('resize', resize);
   </script>
 </body>
 </html>
